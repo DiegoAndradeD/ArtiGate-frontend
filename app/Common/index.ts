@@ -14,6 +14,7 @@ import Formatters from "./utils/formatters";
 // Components
 import CustomFormInput from "./components/CustomFormInput";
 import CustomPhoneInput from "./components/CustomPhoneInput";
+import CreditCardPreview from "./components/CreditCardPreview";
 
 // Enums
 export { Role, RoleStringRepresentation };
@@ -29,4 +30,4 @@ export { styleClassName, Formatters };
 
 // Components
 
-export { CustomFormInput, CustomPhoneInput };
+export { CustomFormInput, CustomPhoneInput, CreditCardPreview };

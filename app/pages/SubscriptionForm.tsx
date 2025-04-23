@@ -9,12 +9,32 @@ import {
   userRegistrationSchema,
   type userRegistrationFormData,
 } from "~/Common";
-import { Form } from "~/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "~/components/ui/form";
 import { Label } from "~/components/ui/label";
 import { Checkbox } from "~/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Progress } from "~/components/ui/progress";
-import { number } from "valibot";
+import { CreditCard, User, Lock, CalendarIcon } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { Input } from "~/components/ui/input";
+import { Button } from "~/components/ui/button";
+import { useState } from "react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "~/components/ui/popover";
+import { format } from "date-fns";
+import { cn } from "~/lib/utils";
+import { Calendar } from "~/components/ui/calendar";
+import CreditCardPreview from "~/Common/components/CreditCardPreview";
 
 const Roles = Formatters.createEnumMap(Role, RoleStringRepresentation);
 
@@ -27,6 +47,7 @@ const SubscriptionForm = () => {
     handleSubmit,
     formState: { errors },
     watch,
+    setValue,
   } = form;
 
   const onSubmit = (data: userRegistrationFormData) => {
@@ -55,6 +76,11 @@ const SubscriptionForm = () => {
   const jobAddressStreet = watch("jobAddress.street");
   const jobAddressZipCode = watch("jobAddress.zipCode");
 
+  const paymentCardNumber = watch("paymentInfo.cardNumber");
+  const paymentCardHolderName = watch("paymentInfo.cardHolderName");
+  const paymentCvv = watch("paymentInfo.cvv");
+  const paymentExpiration = watch("paymentInfo.expiration");
+
   const firstStepDataArray = [name, phone, email, badgeUrl, roles];
   const secondStepDataArray = [
     homeAddressCity,
@@ -74,8 +100,14 @@ const SubscriptionForm = () => {
     jobAddressStreet,
     jobAddressZipCode,
   ];
+  const fourthStepDataArray = [
+    paymentCardNumber,
+    paymentCardHolderName,
+    paymentCvv,
+    paymentExpiration,
+  ];
 
-  const isRelevant = (item: string | string[] | undefined): boolean =>
+  const isRelevant = (item: string | string[] | undefined | Date): boolean =>
     item !== undefined &&
     item !== null &&
     !(Array.isArray(item) && item.length === 0) &&
@@ -89,6 +121,9 @@ const SubscriptionForm = () => {
 
   const ThirdStepDataArrayDefinedItemsLength =
     thirdStepDataArray.filter(isRelevant).length;
+
+  const FourthStepDataArrayDefinedItemsLength =
+    fourthStepDataArray.filter(isRelevant).length;
 
   const getStepProgress = (
     stepItemsDefinedLength: number,
@@ -115,7 +150,22 @@ const SubscriptionForm = () => {
     thirdStepDataArray.length
   );
 
-  console.log(roles);
+  const FourthStepProgress = getStepProgress(
+    FourthStepDataArrayDefinedItemsLength,
+    fourthStepDataArray.length
+  );
+
+  const formatCardNumber = (value: string) => {
+    return value
+      .replace(/\D/g, "")
+      .replace(/(.{4})/g, "$1 ")
+      .trim();
+  };
+
+  const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatCardNumber(e.target.value);
+    setValue("paymentInfo.cardNumber", formatted);
+  };
 
   return (
     <section className="flex items-center justify-center min-h-screen bg-gray-100 w-full">
@@ -145,10 +195,10 @@ const SubscriptionForm = () => {
                   3
                 </TabsTrigger>
                 <Progress value={thirdStepProgress} className="w-[100px]" />
-                <TabsTrigger value="user-role" className="rounded-full w-8 h-8">
+                <TabsTrigger value="payment" className="rounded-full w-8 h-8">
                   4
                 </TabsTrigger>
-                <Progress value={thirdStepProgress} className="w-[100px]" />
+                <Progress value={FourthStepProgress} className="w-[100px]" />
               </TabsList>
               <TabsContent value="user-data" className="w-full">
                 <h1 className="text-2xl font-bold mb-6 text-center">
@@ -173,20 +223,32 @@ const SubscriptionForm = () => {
                     </h1>
                     <div className="flex gap-4 items-center">
                       {Roles.map((role) => (
-                        <>
-                          <Label
-                            key={role.value}
-                            className="flex items-center gap-2 text-lg"
-                          >
-                            {role.label}
-                          </Label>
-                          <Checkbox
-                            id={role.value}
-                            value={role.value}
-                            className="w-4 h-4 border-primary"
-                            {...register("roles")}
-                          />
-                        </>
+                        <FormField
+                          key={role.value}
+                          control={form.control}
+                          name="roles"
+                          render={({ field }) => (
+                            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow">
+                              <FormLabel>{role.label}</FormLabel>
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value?.includes(
+                                    role.value as Role
+                                  )}
+                                  onCheckedChange={(checked) => {
+                                    const newValue = checked
+                                      ? [...(field.value || []), role.value]
+                                      : (field.value || []).filter(
+                                          (r) => r !== role.value
+                                        );
+
+                                    field.onChange(newValue);
+                                  }}
+                                />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
                       ))}
                     </div>
                   </div>
@@ -282,90 +344,103 @@ const SubscriptionForm = () => {
                   />
                 </div>
               </TabsContent>
-              <TabsContent value="user-role" className="flex flex-col gap-4">
-                <h1 className="text-2xl font-bold mb-6 text-center">Papel</h1>
-
-                {errors.roles && (
-                  <p className="text-red-500 text-sm">{errors.roles.message}</p>
-                )}
+              <TabsContent value="payment" className="flex flex-col gap-4">
+                <h1 className="text-2xl font-bold mb-6 text-center">
+                  Pagamento
+                </h1>
+                <div className="grid grid-cols-2 gap-4">
+                  <CreditCardPreview
+                    cardNumber={paymentCardNumber}
+                    cardHolderName={paymentCardHolderName}
+                    expiration={String(paymentExpiration)}
+                    cvv={paymentCvv}
+                  />
+                  <div className="flex flex-col gap-4">
+                    <div className="space-y-2">
+                      <CustomFormInput
+                        name={"paymentInfo.cardNumber"}
+                        label={"Número do Cartão"}
+                        type={"text"}
+                        placeholder="**** **** **** ****"
+                        maxLength={19}
+                        onChange={handleCardNumberChange}
+                        startContent={<CreditCard className="h-5 w-5" />}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <CustomFormInput
+                        name={"paymentInfo.cardHolderName"}
+                        label={"Nome no Cartão"}
+                        type={"text"}
+                        placeholder="João da Silva"
+                        startContent={<User className="h-5 w-5" />}
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 items-center">
+                      <FormField
+                        control={form.control}
+                        name="paymentInfo.expiration"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-col">
+                            <FormLabel className="mb-2">Validade</FormLabel>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <FormControl>
+                                  <Button
+                                    variant={"outline"}
+                                    className={cn(
+                                      "pl-3 text-left font-normal !h-10",
+                                      !field.value && "text-muted-foreground"
+                                    )}
+                                  >
+                                    {field.value ? (
+                                      format(field.value, "PPP")
+                                    ) : (
+                                      <span>Data de validade</span>
+                                    )}
+                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                  </Button>
+                                </FormControl>
+                              </PopoverTrigger>
+                              <PopoverContent
+                                className="w-auto p-0"
+                                align="start"
+                              >
+                                <Calendar
+                                  className="border-black border"
+                                  mode="single"
+                                  selected={field.value}
+                                  onSelect={field.onChange}
+                                  disabled={(date) =>
+                                    date > new Date() ||
+                                    date < new Date("1900-01-01")
+                                  }
+                                />
+                              </PopoverContent>
+                            </Popover>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <CustomFormInput
+                        name={"paymentInfo.cvv"}
+                        label={"CVV"}
+                        type={"text"}
+                        placeholder="***"
+                        maxLength={3}
+                        startContent={<Lock className="h-5 w-5" />}
+                      />
+                    </div>
+                  </div>
+                </div>
               </TabsContent>
             </Tabs>
-
-            {/* <section>
-
-
-            </section>
-            <div className="flex flex-col gap-4">
-              <label className="block font-medium">Papel</label>
-              <div className="flex gap-4 items-center">
-                {Roles.map((role) => (
-                  <>
-                    <Label
-                      key={role.value}
-                      className="flex items-center gap-2 text-lg"
-                    >
-                      {role.label}
-                    </Label>
-                    <Checkbox
-                      id={role.value}
-                      value={role.value}
-                      className="w-4 h-4 border-primary"
-                      {...register("roles")}
-                    />
-                  </>
-                ))}
-              </div>
-              {errors.roles && (
-                <p className="text-red-500 text-sm">{errors.roles.message}</p>
-              )}
-            </div>
-            <fieldset>
-              <legend className="text-lg font-semibold">
-                Informações de Pagamento
-              </legend>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-                <input
-                  type="text"
-                  placeholder="Número do Cartão"
-                  {...register("paymentInfo.cardNumber")}
-                  className="input"
-                />
-                <input
-                  type="text"
-                  placeholder="Nome no Cartão"
-                  {...register("paymentInfo.cardHolderName")}
-                  className="input"
-                />
-                <input
-                  type="number"
-                  placeholder="Mês (MM)"
-                  {...register("paymentInfo.expirationMonth", {
-                    valueAsNumber: true,
-                  })}
-                  className="input"
-                />
-                <input
-                  type="number"
-                  placeholder="Ano (YY)"
-                  {...register("paymentInfo.expirationYear", {
-                    valueAsNumber: true,
-                  })}
-                  className="input"
-                />
-                <input
-                  type="text"
-                  placeholder="CVV"
-                  {...register("paymentInfo.cvv")}
-                  className="input"
-                />
-              </div>
-            </fieldset>
             <button
               type="submit"
               className="mt-6 w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition"
             >
               Enviar
-            </button> */}
+            </button>
           </form>
         </Form>
       </div>

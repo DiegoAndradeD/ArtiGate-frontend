@@ -16,29 +16,16 @@ const paymentSchema = z
   .object({
     cardNumber: z.string().regex(/^\d{13,19}$/, "Número do cartão inválido"),
     cardHolderName: z.string().min(1, "Nome no cartão é obrigatório"),
-    expirationMonth: z
-      .number({ invalid_type_error: "Mês deve ser um número" })
-      .min(1, "Mês inválido")
-      .max(12, "Mês inválido"),
-    expirationYear: z
-      .number({ invalid_type_error: "Ano deve ser um número" })
-      .min(24, "Ano inválido")
-      .max(99, "Ano inválido"),
+    expiration: z.date({
+      required_error: "Data de expiração é obrigatória",
+      invalid_type_error: "Data de expiração inválida",
+    }),
     cvv: z.string().regex(/^\d{3,4}$/, "CVV inválido"),
   })
-  .refine(
-    ({ expirationMonth, expirationYear }) => {
-      const fullYear = 2000 + expirationYear;
-      const expiration = lastDayOfMonth(
-        new Date(fullYear, expirationMonth - 1)
-      );
-      return isAfter(expiration, new Date());
-    },
-    {
-      message: "Cartão expirado",
-      path: ["expirationMonth", "expirationYear"],
-    }
-  );
+  .refine(({ expiration }) => isAfter(expiration, new Date()), {
+    message: "Cartão expirado",
+    path: ["expiration"],
+  });
 
 export const userRegistrationSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),

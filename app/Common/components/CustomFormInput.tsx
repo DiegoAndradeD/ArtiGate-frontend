@@ -25,10 +25,13 @@ interface Props {
   };
   min?: string;
   disabled?: boolean;
-  onChange?: (e: any) => void;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder?: string;
   isLoading?: boolean;
   variant?: VariantProps<typeof inputVariants>["variant"];
+  maxLength?: number;
+  startContent?: React.ReactNode;
+  endContent?: React.ReactNode;
 }
 
 const CustomFormInput = ({
@@ -43,6 +46,9 @@ const CustomFormInput = ({
   placeholder,
   isLoading = false,
   variant,
+  maxLength,
+  startContent,
+  endContent,
 }: Props) => {
   const [isFieldVisible, setIsFieldVisible] = useState(false);
   const { control } = useFormContext();
@@ -79,10 +85,13 @@ const CustomFormInput = ({
                   disabled={disabled}
                   placeholder={placeholder}
                   min={min}
+                  maxLength={maxLength}
                   variant={variant}
-                  onChange={(e) => {
-                    field.onChange(e);
-                    if (onChange) onChange(e.target.value);
+                  startContent={startContent}
+                  endContent={endContent}
+                  onChange={(value) => {
+                    field.onChange(value);
+                    if (onChange) onChange(value);
                   }}
                 />
                 {isLoading && (

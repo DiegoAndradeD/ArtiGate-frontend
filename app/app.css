@@ -134,3 +134,39 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes small-bounce {
+
+  0%,
+  100% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+  }
+
+  50% {
+    transform: translateY(-30px);
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+
+.small-bounce:hover {
+  animation: small-bounce .9s infinite;
+}
+
+@keyframes zoom-in-hover {
+  0% {
+    transform: scale(1);
+  }
+
+  100% {
+    transform: scale(1.05);
+  }
+}
+
+.zoom-in {
+  transition: transform 0.3s ease;
+}
+
+.zoom-in:hover {
+  animation: zoom-in-hover 0.3s forwards;
+}
