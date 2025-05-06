@@ -170,3 +170,18 @@ body {
 .zoom-in:hover {
   animation: zoom-in-hover 0.3s forwards;
 }
+
+.perspective {
+  perspective: 1000px;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+
+.PhoneInputInput:focus {
+  border: none !important;
+  outline: none !important;
+  outline-color: transparent !important;
+}
