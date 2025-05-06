@@ -4,12 +4,9 @@ import { format } from "date-fns";
 
 interface Props {
   formData: userRegistrationFormData;
-  onPrev: () => void;
-  onSubmit: () => void;
-  isValid: boolean;
 }
 
-const ReviewStep = ({ formData, onPrev, onSubmit, isValid }: Props) => {
+const ReviewStep = ({ formData }: Props) => {
   const getDisplayValue = (
     value: any,
     defaultValue: string = "À preencher"
@@ -124,21 +121,17 @@ const ReviewStep = ({ formData, onPrev, onSubmit, isValid }: Props) => {
           </div>
           <div>
             <strong>Validade:</strong>{" "}
-            {getDisplayValue(formData.paymentInfo?.expiration, "À preencher")}
+            {getDisplayValue(
+              formData.paymentInfo?.expiration
+                ? format(new Date(formData.paymentInfo?.expiration), "MM/yy")
+                : "À preencher",
+              "À preencher"
+            )}
           </div>
           <div>
             <strong>CVV:</strong> {getDisplayValue(formData.paymentInfo?.cvv)}
           </div>
         </div>
-      </div>
-
-      <div className="flex gap-4 mt-4 items-center w-full justify-between">
-        <Button variant="secondary" onClick={onPrev}>
-          Voltar
-        </Button>
-        <Button disabled={!isValid} onClick={onSubmit}>
-          Enviar
-        </Button>
       </div>
     </div>
   );

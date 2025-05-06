@@ -26,7 +26,8 @@ const paymentSchema = z
   .object({
     cardNumber: z
       .string({ required_error: "Campo obrigatório." })
-      .regex(/^\d{13,19}$/, "Número do cartão inválido"),
+      .regex(/^\d{13,19}$/, "Número do cartão inválido")
+      .transform((val) => val.replace(/\s/g, "")),
     cardHolderName: z
       .string({ required_error: "Campo obrigatório." })
       .min(1, "Nome no cartão é obrigatório"),

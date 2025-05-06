@@ -12,10 +12,9 @@ import {
 } from "~/components/ui/form";
 import { Eye, EyeOff, LoaderCircle } from "lucide-react";
 
-interface Props {
+interface Props extends React.InputHTMLAttributes<HTMLInputElement> {
   name: string;
   label: string;
-  type: string;
   isContentHideable?: boolean;
   classNames?: {
     container?: string;
@@ -23,13 +22,8 @@ interface Props {
     label?: string;
     message?: string;
   };
-  min?: string;
-  disabled?: boolean;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  placeholder?: string;
   isLoading?: boolean;
   variant?: VariantProps<typeof inputVariants>["variant"];
-  maxLength?: number;
   startContent?: React.ReactNode;
   endContent?: React.ReactNode;
 }
@@ -37,18 +31,15 @@ interface Props {
 const CustomFormInput = ({
   name,
   label,
-  type,
+  type = "text",
   isContentHideable,
   classNames,
-  min,
-  disabled,
-  onChange,
-  placeholder,
   isLoading = false,
   variant,
-  maxLength,
+  className,
   startContent,
   endContent,
+  ...rest
 }: Props) => {
   const [isFieldVisible, setIsFieldVisible] = useState(false);
   const { control } = useFormContext();
@@ -82,16 +73,13 @@ const CustomFormInput = ({
                     }`,
                     classNames?.input
                   )}
-                  disabled={disabled}
-                  placeholder={placeholder}
-                  min={min}
-                  maxLength={maxLength}
+                  {...rest}
                   variant={variant}
                   startContent={startContent}
                   endContent={endContent}
                   onChange={(value) => {
                     field.onChange(value);
-                    if (onChange) onChange(value);
+                    rest.onChange?.(value);
                   }}
                 />
                 {isLoading && (

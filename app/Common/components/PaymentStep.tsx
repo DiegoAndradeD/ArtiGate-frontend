@@ -40,8 +40,8 @@ const PaymentStep = ({ isValid, onNext, onPrev }: Props) => {
   };
 
   const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatCardNumber(e.target.value);
-    setValue("paymentInfo.cardNumber", formatted);
+    const raw = e.target.value.replace(/\D/g, "");
+    setValue("paymentInfo.cardNumber", raw);
   };
 
   return (
@@ -61,6 +61,7 @@ const PaymentStep = ({ isValid, onNext, onPrev }: Props) => {
             type="text"
             placeholder="**** **** **** ****"
             maxLength={19}
+            value={formatCardNumber(paymentCardNumber || "")}
             onChange={handleCardNumberChange}
             startContent={<CreditCard className="h-5 w-5" />}
           />

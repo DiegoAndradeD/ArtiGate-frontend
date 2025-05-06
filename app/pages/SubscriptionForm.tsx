@@ -13,8 +13,12 @@ import JobAddressStep from "~/Common/components/JobAddressStep";
 import PaymentStep from "~/Common/components/PaymentStep";
 import { Calendar } from "~/components/ui/calendar";
 import { SubscriptionFormStep } from "~/Common/enums/SubscriptionFormStep";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ReviewStep from "~/Common/components/ReviewStep";
+import { useUserStore } from "~/Common/stores/user.store";
+import { generateFakeUserData } from "~/Common/utils/generateFakeUserData";
+import { Button } from "~/components/ui/button";
+import { useNavigate } from "react-router";
 
 const stepComponents = [
   { value: SubscriptionFormStep.UserData, label: "1", component: UserDataStep },
@@ -37,22 +41,22 @@ const stepComponents = [
 ];
 
 const SubscriptionForm = () => {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState<SubscriptionFormStep>(
     SubscriptionFormStep.UserData
   );
+  const { createUser } = useUserStore();
 
   const form = useForm<userRegistrationFormData>({
     resolver: zodResolver(userRegistrationSchema),
+    mode: "onChange",
   });
 
-  const {
-    handleSubmit,
-    watch,
-    formState: { isValid },
-  } = form;
+  const { handleSubmit, watch } = form;
 
-  const onSubmit = (data: userRegistrationFormData) => {
-    console.log(data);
+  const onSubmit = async (data: userRegistrationFormData) => {
+    await createUser(data);
+    navigate("/");
   };
 
   const stepFields = [
@@ -114,6 +118,15 @@ const SubscriptionForm = () => {
       setCurrentStep(stepComponents[currentIndex - 1].value);
     }
   };
+
+  const isAllFieldsFilled = () => {
+    return stepFields.flat().every(isRelevant);
+  };
+
+  useEffect(() => {
+    const fakeData = generateFakeUserData();
+    form.reset(fakeData);
+  }, [form]);
 
   return (
     <section className="flex items-center justify-center min-h-screen bg-gray-100 w-full">
@@ -177,23 +190,21 @@ const SubscriptionForm = () => {
                       onNext={() => goToStep("next")}
                     />
                   ) : (
-                    <ReviewStep
-                      formData={form.getValues()}
-                      onPrev={() => goToStep("prev")}
-                      onSubmit={handleSubmit(onSubmit)}
-                      isValid={isValid}
-                    />
+                    <ReviewStep formData={form.getValues()} />
                   )}
                 </TabsContent>
               ))}
             </Tabs>
-
-            {/* <button
-              type="submit"
-              className="mt-6 w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition"
-            >
-              Enviar
-            </button> */}
+            {currentStep === SubscriptionFormStep.Review && (
+              <div className="flex gap-4 mt-4 items-center w-full justify-between">
+                <Button variant="secondary" onClick={() => goToStep("prev")}>
+                  Voltar
+                </Button>
+                <Button type="submit" disabled={!isAllFieldsFilled()}>
+                  Enviar
+                </Button>
+              </div>
+            )}
           </form>
         </Form>
       </div>
