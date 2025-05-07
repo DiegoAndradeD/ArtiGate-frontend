@@ -4,9 +4,9 @@ export const submissionSchema = z.object({
   authors: z
     .array(
       z.object({
-        title: z.string().min(1, "Título obrigatório"),
+        name: z.string().min(1, "Nome obrigatório"),
         email: z.string().email("E-mail inválido"),
-        badgeUrl: z.string().url("URL do crachá inválida"),
+        badgeUrl: z.string().min(1, "URL do crachá inválida"),
       })
     )
     .min(1, "Pelo menos um autor é necessário"),

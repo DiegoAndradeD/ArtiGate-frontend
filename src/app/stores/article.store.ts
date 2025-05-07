@@ -2,8 +2,9 @@ import { create } from "zustand";
 import { toast } from "react-toastify";
 import { Article } from "../types/Article";
 import ArticleService from "../services/ArticleService";
-import { handleErrorToast } from "../utils/handleErrorToast";
 import { Pagination } from "../types/Pagination";
+import { SubmissionFormData } from "../schemas/submission-schema";
+import ErrorService from "../services/ErrorService";
 
 interface ArticleStore {
   articles: Article[];
@@ -11,6 +12,7 @@ interface ArticleStore {
   selectedArticle: Article | null;
   selectedArticles: Article[];
   isLoadingArticles: boolean;
+  isLoadingArticleSubmission: boolean;
 
   getArticles: () => Promise<void>;
   clearSelectedArticle: () => void;
@@ -21,6 +23,7 @@ interface ArticleStore {
     filterState: keyof Pagination,
     value: Pagination[keyof Pagination]
   ) => void;
+  submitArticle: (data: SubmissionFormData) => Promise<void>;
 }
 
 export const useArticleStore = create<ArticleStore>()((set, get) => ({
@@ -34,6 +37,7 @@ export const useArticleStore = create<ArticleStore>()((set, get) => ({
   selectedArticle: null,
   selectedArticles: [],
   isLoadingArticles: false,
+  isLoadingArticleSubmission: false,
 
   getArticles: async () => {
     set({ isLoadingArticles: true });
@@ -45,7 +49,7 @@ export const useArticleStore = create<ArticleStore>()((set, get) => ({
       set({ articles: items, articlesPagination: pagination });
       toast.success("Artigos carregados com sucesso.");
     } catch (error) {
-      handleErrorToast("carregar artigos", error);
+      ErrorService.httpErrorHandler(error);
     } finally {
       set({ isLoadingArticles: false });
     }
@@ -69,4 +73,16 @@ export const useArticleStore = create<ArticleStore>()((set, get) => ({
   clearSelectedArticles: () => set({ selectedArticles: [] }),
   setSelectedArticles: (articles: Article[]) =>
     set({ selectedArticles: articles }),
+  submitArticle: async (data: SubmissionFormData) => {
+    set({ isLoadingArticleSubmission: true });
+    try {
+      await ArticleService.submitArticle(data);
+      toast.success("Artigo submetido com sucesso.");
+    } catch (error) {
+      ErrorService.httpErrorHandler(error);
+      throw error;
+    } finally {
+      set({ isLoadingArticleSubmission: false });
+    }
+  },
 }));
