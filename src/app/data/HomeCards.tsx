@@ -20,6 +20,6 @@ export const CardsData: CardProps[] = [
     title: " Avaliação de Artigos",
     description: "Revise e avalie os artigos submetidos por outros autores",
     icon: <ClipboardCheck color="#1e36ae" width={100} height={100} />,
-    path: "",
+    path: "evaluation",
   },
 ];

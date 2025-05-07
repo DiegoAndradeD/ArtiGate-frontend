@@ -1,8 +1,7 @@
 import axios from "axios";
 import type { userRegistrationFormData } from "../schemas/subscription-schema";
 import type { LoginFormData } from "../schemas/login-schema";
-
-const BASE_URL = "http://localhost:5000";
+import { BASE_URL } from "../consts/apiUrl";
 
 class UserService {
   static async getAll() {
