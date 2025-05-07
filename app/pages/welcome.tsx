@@ -31,7 +31,7 @@ const CardsData: CardProps[] = [
     description:
       "Envie artigos para avaliação, acompanhe e gerencie as submissões",
     icon: <FilePlus color="#1e36ae" width={100} height={100} />,
-    path: "",
+    path: "submission",
   },
   {
     title: " Avaliação de Artigos",
