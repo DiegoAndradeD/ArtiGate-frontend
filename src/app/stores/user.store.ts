@@ -5,7 +5,7 @@ import { User } from "../types/User";
 import { userRegistrationFormData } from "../schemas/subscription-schema";
 import { LoginFormData } from "../schemas/login-schema";
 import UserService from "../services/UserService";
-import AuthService from "../services/AuthService";
+import { setAuthCookies } from "../services/AuthService";
 
 interface UserStore {
   user: User | null;
@@ -92,7 +92,8 @@ export const useUserStore = create<UserStore>()(
         set({ loading: true });
         try {
           const { user, token } = await UserService.login(data);
-          AuthService.setAuthCookies(user, token);
+          console.log("store ", user, token);
+          await setAuthCookies(user, token);
           set({ user, token });
           toast.success("Login realizado com sucesso.");
         } catch (error) {
