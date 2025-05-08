@@ -51,7 +51,7 @@ export default function Navbar() {
             </NavigationMenuItem>
             <NavigationMenuItem>
               <NavigationMenuLink
-                href="/evaluation"
+                href="/evaluation/me"
                 className={navigationMenuTriggerStyle()}
               >
                 Meus artigos
