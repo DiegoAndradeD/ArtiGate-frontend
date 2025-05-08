@@ -3,12 +3,14 @@ import { useMemo } from "react";
 import {
   generateDynamicTableDefaultColumns,
   createDynamicTableColumn,
+  createDynamicTableActionColumn,
 } from "../components/table/DynamicTableColumn";
 import {
   RowType,
   SimpleColumn,
   TableColumn,
   CustomColumn,
+  ActionColumn,
 } from "../types/Table";
 // Types
 // Utils
@@ -16,15 +18,19 @@ import {
 interface Props<T extends RowType> {
   defaultColumns?: SimpleColumn<T>[];
   customColumns?: TableColumn<T>[];
+  customActionColumn?: ActionColumn<T>;
 }
 
 const useDynamicTableColumns = <T extends RowType>({
   defaultColumns = [],
   customColumns = [],
+  customActionColumn,
 }: Props<T>): CustomColumn<T>[] => {
   return useMemo(() => {
     const baseColumns = generateDynamicTableDefaultColumns(defaultColumns);
-
+    const actionColumn = customActionColumn
+      ? createDynamicTableActionColumn(customActionColumn)
+      : undefined;
     const complexColumns = customColumns.map(
       ({
         accessorKey,
@@ -44,8 +50,12 @@ const useDynamicTableColumns = <T extends RowType>({
         )
     );
 
-    return [...baseColumns, ...complexColumns];
-  }, [defaultColumns.length, customColumns.length]);
+    return [
+      ...baseColumns,
+      ...complexColumns,
+      ...(actionColumn ? [actionColumn] : []),
+    ];
+  }, [defaultColumns.length, customColumns.length, customActionColumn]);
 };
 
 export default useDynamicTableColumns;

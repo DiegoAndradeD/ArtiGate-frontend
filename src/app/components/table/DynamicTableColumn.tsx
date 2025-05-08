@@ -95,7 +95,7 @@ export const createDynamicTableActionColumn = <T extends RowType>({
             side="left"
             align="start"
             sideOffset={10}
-            className="!bg-black border-gray flex flex-col rounded-lg rounded-tr-none"
+            className="!bg-white border-gray flex flex-col rounded-lg rounded-tr-none"
           >
             {actions.length > 0 &&
               actions.map((action, index) => (
@@ -107,13 +107,14 @@ export const createDynamicTableActionColumn = <T extends RowType>({
                   }
                   isLoading={action.isLoading}
                   iconPlacement="left"
-                  className="bg-transparent hover:bg-gray/20 h-auto p-2 w-28 justify-start"
+                  className="bg-transparent hover:bg-black/20 h-auto p-2 w-full justify-start border-none
+                  border-transparent !shadow-none"
                   onClick={(e) => {
                     e.preventDefault();
                     action.onClick(row.original);
                   }}
                 >
-                  <h1 className="text-sm text-white/60">{action.title}</h1>
+                  <h1 className="text-sm text-black">{action.title}</h1>
                 </Button>
               ))}
             {onEdit && (

@@ -17,5 +17,9 @@ class ArticleService {
     const res = await axios.post(`${BASE_URL}/article`, data);
     return res.data;
   }
+  static async getArticlesByUserId(userId: string): Promise<Article[]> {
+    const res = await axios.get(`${BASE_URL}/article/by-user/${userId}`);
+    return res.data;
+  }
 }
 export default ArticleService;

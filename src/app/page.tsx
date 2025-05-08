@@ -8,8 +8,7 @@ export default function Home() {
   const navigate = useRouter();
 
   return (
-    <main className="h-screen overflow-y-hidden flex flex-col items-center">
-      <div className="bg-blue-950 w-full h-16"></div>
+    <main className="h-full overflow-y-hidden flex flex-col items-center content-area">
       <section className="w-1/2">
         <div className="w-full flex flex-col gap-4 items-center py-20">
           <h1 className="text-7xl font-bold text-blue-900 text-center">

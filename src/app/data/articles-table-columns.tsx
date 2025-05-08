@@ -17,7 +17,7 @@ export const articlesCustomTableColumn: TableColumn<Article>[] = [
     title: "Resumo",
     accessorKey: "summary",
     cell: ({ row }) => (
-      <span className="w-[400px] truncate ...">{row.original.summary}</span>
+      <p className="w-60 max-w-60 truncate ...">{row.original.summary}</p>
     ),
     isSorteable: false,
   },

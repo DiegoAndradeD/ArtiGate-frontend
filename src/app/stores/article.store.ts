@@ -24,6 +24,7 @@ interface ArticleStore {
     value: Pagination[keyof Pagination]
   ) => void;
   submitArticle: (data: SubmissionFormData) => Promise<void>;
+  getArticlesByUserId: (userId: string) => Promise<void>;
 }
 
 export const useArticleStore = create<ArticleStore>()((set, get) => ({
@@ -47,7 +48,6 @@ export const useArticleStore = create<ArticleStore>()((set, get) => ({
         articlesPagination
       );
       set({ articles: items, articlesPagination: pagination });
-      toast.success("Artigos carregados com sucesso.");
     } catch (error) {
       ErrorService.httpErrorHandler(error);
     } finally {
@@ -83,6 +83,17 @@ export const useArticleStore = create<ArticleStore>()((set, get) => ({
       throw error;
     } finally {
       set({ isLoadingArticleSubmission: false });
+    }
+  },
+  getArticlesByUserId: async (userId: string) => {
+    set({ isLoadingArticles: true });
+    try {
+      const articles = await ArticleService.getArticlesByUserId(userId);
+      set({ articles });
+    } catch (error) {
+      ErrorService.httpErrorHandler(error);
+    } finally {
+      set({ isLoadingArticles: false });
     }
   },
 }));

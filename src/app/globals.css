@@ -129,6 +129,10 @@
   }
 }
 
+.content-area {
+  height: calc(100vh - 64px);
+}
+
 @keyframes small-bounce {
 
   0%,

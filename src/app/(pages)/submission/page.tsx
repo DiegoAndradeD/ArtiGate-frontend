@@ -45,7 +45,7 @@ const ArticleSubmission = () => {
   };
 
   return (
-    <section className="h-screen flex items-center justify-center">
+    <section className="content-area flex items-center justify-center">
       <div className="max-w-2xl mx-auto my-10 bg-white p-6 rounded-lg shadow-lg">
         <h2 className="text-2xl font-bold mb-6 text-center">
           Submissão de Artigo

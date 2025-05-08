@@ -37,3 +37,11 @@ export interface SimpleColumn<T> {
   title: string;
   isSorteable?: boolean;
 }
+
+export interface ActionColumn<T> {
+  id: string;
+  onEdit?: (row: T) => void;
+  onDelete?: (row: T) => void;
+  customActionCell?: (row: T) => JSX.Element;
+  extraActions?: (row: T) => ActionProps<T>[];
+}
